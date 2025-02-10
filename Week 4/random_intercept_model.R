@@ -5,13 +5,21 @@ library(lmerTest)
 
 df <- read_sav("lq2002.sav")
 
+attach(df)
+
+# Aggregate Score
+df <- df %>% 
+  group_by(COMPID) %>% 
+  mutate(GTSIG_check = mean(TSIG))
+
+cor(df$GTSIG, df$GTSIG_check) # checks out
+
 """
 • HOSTILE: Individual-level Hostility Scale score is the outcome variable.
 • TSIG: Individual-level Task Significance score is a level 1 covariate.
 • COMPID: This is the level 2 grouping (level) variable, defining 49 groups.
 • GTSIG: Company-level aggregate Task Significance score is a level 2 covariate.
 """
-attach(df)
 
 # Null Model
 NullModel <- lmer(HOSTILE ~ (1|COMPID), REML = F, data = df)
@@ -37,3 +45,5 @@ lrtest(NullModel, RIModel)
 
 # scaled residuals
 quantile(residuals(RIModel, "pearson", scaled = TRUE))
+
+
